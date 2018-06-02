@@ -31,7 +31,7 @@ public class WechatHeaderViewActivity extends AppCompatActivity {
             mData.add("数据：" + i);
         }
 
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = findViewById(R.id.rv_data);
         MyAdapter myAdapter = new MyAdapter(mData, this);
         recyclerView.setAdapter(myAdapter);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);

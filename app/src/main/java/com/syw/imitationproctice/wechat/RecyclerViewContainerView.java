@@ -111,9 +111,16 @@ public class RecyclerViewContainerView extends LinearLayout {
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                if (!mScroller.isFinished()) {
+                    mScroller.abortAnimation();
+                }
                 mLastY = event.getRawY();
                 break;
             case MotionEvent.ACTION_MOVE:
+                if (!mScroller.isFinished()) {
+                    mScroller.abortAnimation();
+                }
+
                 float dy = event.getRawY() - mLastY;
                 Log.d("RecyclerViewContainerVi", "dy:" + dy);
 

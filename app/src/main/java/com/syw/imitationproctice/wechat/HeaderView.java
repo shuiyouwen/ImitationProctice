@@ -37,6 +37,9 @@ public class HeaderView extends FrameLayout {
     private int mLeftCx;
     private int mRightCx;
     private boolean mIsContainerShowing = false;
+    private RecyclerView mRecyclerView;
+    private int mContainerHeight;
+    private int mTopMargin;
 
     public HeaderView(@NonNull Context context) {
         super(context);
@@ -62,9 +65,22 @@ public class HeaderView extends FrameLayout {
         mStepSize = dip2px(mContext, 30);
 
         setBackgroundColor(Color.parseColor("#e5e5e5"));
-        View view = inflate(context, R.layout.header_customer, this);
-//        RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
-//        initRecyclerView(recyclerView);
+        View container = inflate(context, R.layout.header_customer, this);
+        mRecyclerView = container.findViewById(R.id.recycler_view);
+        initContainerHeight(container);
+    }
+
+    private void initContainerHeight(final View container) {
+        container.post(new Runnable() {
+            @Override
+            public void run() {
+                container.measure(0, 0);
+                mContainerHeight = container.getMeasuredHeight();
+                Log.d("HeaderView", "mContainerHeight:" + mContainerHeight);
+
+                initRecyclerView(mRecyclerView);
+            }
+        });
     }
 
     private void initRecyclerView(RecyclerView recyclerView) {
@@ -72,6 +88,20 @@ public class HeaderView extends FrameLayout {
         recyclerView.setLayoutManager(layoutManager);
         ComponentAdapter componentAdapter = new ComponentAdapter(mContext);
         recyclerView.setAdapter(componentAdapter);
+
+        setTopMargin(-mContainerHeight);
+    }
+
+    private void setTopMargin(int margin) {
+        mTopMargin = margin > 0 ? 0 : margin;
+
+        MarginLayoutParams layoutParams = (MarginLayoutParams) mRecyclerView.getLayoutParams();
+        layoutParams.topMargin = mTopMargin;
+        mRecyclerView.setLayoutParams(layoutParams);
+    }
+
+    private void goneComponentView() {
+        setTopMargin(-mContainerHeight);
     }
 
 
@@ -85,6 +115,8 @@ public class HeaderView extends FrameLayout {
             //中间的点持续放大
             mCurrentStep = 1;
             mRadius = height / mStepSize * mMiddlePointMaxSize;
+
+            goneComponentView();
         } else if (height > mStepSize && height <= mStepSize * 2) {
             //中间的开始缩小，并从中间开始分化出两个点
             mCurrentStep = 2;
@@ -98,21 +130,26 @@ public class HeaderView extends FrameLayout {
             int dx = (int) ((height - mStepSize) / mStepSize * mEndPointSize * 4);
             mLeftCx -= dx;
             mRightCx += dx;
+
+            goneComponentView();
         } else if (height > mStepSize * 2 && height <= mStepSize * 3) {
             //小组件开始出现  三个点从上到下渐变消失
-            Log.d("HeaderView", "小组件开始出现  三个点从上到下渐变消失");
-
             mCurrentStep = 3;
             float ratio = (height - mStepSize * 2) / mStepSize;
             mCy = (int) (mCy + mCy * ratio);
             mPaint.setAlpha((int) (255 * (1 - ratio)));
 
-            //显示组件所在的container
-
+            updateMargin(height);
         } else {
             mIsContainerShowing = true;
+            updateMargin(height);
         }
         invalidate();
+    }
+
+    private void updateMargin(float height) {
+        float ratio = (height - mStepSize * 2) / (mStepSize * 2);
+        setTopMargin((int) (-mContainerHeight * (1 - ratio)));
     }
 
     @Override

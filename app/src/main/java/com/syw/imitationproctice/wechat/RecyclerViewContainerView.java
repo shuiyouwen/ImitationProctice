@@ -1,5 +1,6 @@
 package com.syw.imitationproctice.wechat;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -7,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -21,16 +23,18 @@ import com.syw.imitationproctice.utils.ScreenUtil;
  * @data: 2018/6/1
  * @description: recyclerView包裹view，实现一些效果
  */
-
+// TODO: 2018/6/2 1、事件优化    2、加速度优化
 public class RecyclerViewContainerView extends LinearLayout {
     private static final float PARALLAX_FACTOR = 1.8f;
     private static final int DEVIATION = 5;//判断展开还是收缩的误差值
+    private static final int VELOCITY_FACTOR = 500;//手势加速度判断参数
 
     private RecyclerView mRecyclerView;
     private float mLastY;
     private HeaderView mHeaderView;
     private float mHeaderHeight;
     private Scroller mScroller;
+    private VelocityTracker mVelocityTracker;
 
     public RecyclerViewContainerView(Context context) {
         super(context);
@@ -51,6 +55,7 @@ public class RecyclerViewContainerView extends LinearLayout {
         setOrientation(VERTICAL);
 
         mScroller = new Scroller(context);
+        mVelocityTracker = VelocityTracker.obtain();
         initHeaderView(context);
     }
 
@@ -96,19 +101,15 @@ public class RecyclerViewContainerView extends LinearLayout {
                     return super.onInterceptTouchEvent(ev);
                 }
 
-                LinearLayoutManager layoutManager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
-                if (layoutManager.findFirstVisibleItemPosition() == 0) {
-//                    if (mHeaderView.isExpended()) {
-//                        //headview已经展开了，事件交给head自己处理
-//                        return super.onInterceptTouchEvent(ev);
-//                    }
-
+                if (isInTop()) {
+                    //在顶端
+                    Log.d("RecyclerViewContainerVi", "在顶端");
                     if (dy > 0) {
                         //在顶端下拉操作
                         return true;
                     }
-
-                    if (mHeaderView.shouldExpend()) {
+                    if (dy < 0 && mHeaderHeight > 0) {
+                        //上滑，并且headview展开了一些
                         return true;
                     }
                 }
@@ -120,8 +121,22 @@ public class RecyclerViewContainerView extends LinearLayout {
         return super.onInterceptTouchEvent(ev);
     }
 
+    /**
+     * 是否在最顶端
+     *
+     * @return
+     */
+    // TODO: 2018/6/2 缺陷，recyclerview向上滑动一点之后此方法一直返回false
+    private boolean isInTop() {
+        //判断是否滑动到顶部， recyclerView.canScrollVertically(-1);返回false表示不能往下滑动，即代表到顶部了；
+        return !mRecyclerView.canScrollVertically(-1);
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        mVelocityTracker.addMovement(event);
+
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 if (!mScroller.isFinished()) {
@@ -144,24 +159,33 @@ public class RecyclerViewContainerView extends LinearLayout {
                     return super.onTouchEvent(event);
                 }
 
-                LinearLayoutManager layoutManager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
-                if (layoutManager.findFirstVisibleItemPosition() == 0) {
-                    //在顶端下拉操作
-                    if (mHeaderHeight >= 0) {
+                if (isInTop()) {
+                    // 在顶端
+                    if (dy > 0 || (dy < 0 && mHeaderHeight > 0)) {
+                        //在顶端下拉操作 或者   上滑，并且headview展开了一些
                         setHeaderVisibleHeight(mHeaderHeight + dy / PARALLAX_FACTOR);
+                        return true;
                     }
-                    return true;
                 }
-
                 break;
             default:
                 if (mHeaderHeight > 0) {
-                    if (mHeaderView.shouldExpend()) {
-                        //需要展开，展开到头部完全张开状态
+                    mVelocityTracker.computeCurrentVelocity(1000);
+                    float yVelocity = mVelocityTracker.getYVelocity();
+                    if (yVelocity > VELOCITY_FACTOR) {
+                        //下拉
                         expendHead();
-                    } else {
-                        //不需要展开，则恢复原样
+                    } else if (yVelocity < VELOCITY_FACTOR) {
+                        //上滑
                         collapseHead();
+                    } else {
+                        if (mHeaderView.shouldExpend()) {
+                            //需要展开，展开到头部完全张开状态
+                            expendHead();
+                        } else {
+                            //不需要展开，则恢复原样
+                            collapseHead();
+                        }
                     }
                 }
                 break;
@@ -222,5 +246,13 @@ public class RecyclerViewContainerView extends LinearLayout {
 
             mLastCurrY = mScroller.getCurrY();
         }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        if (mVelocityTracker != null) {
+            mVelocityTracker.recycle();
+        }
+        super.onDetachedFromWindow();
     }
 }

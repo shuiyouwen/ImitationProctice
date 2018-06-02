@@ -17,7 +17,7 @@ import java.util.List;
  * @data: 2018/6/1
  * @description: 微信下拉选择小组件
  */
-
+// TODO: 2018/6/2 headerview 中recyclerview翻页功能
 public class WechatHeaderViewActivity extends AppCompatActivity {
     private List<String> mData = new ArrayList<>();
 

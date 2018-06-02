@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -237,5 +238,14 @@ public class HeaderView extends FrameLayout {
      */
     public float getExpendHeight() {
         return mExpendHeight;
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (mIsExpended) {
+            //父控件不处理事件，把事件交给headerView中的recyclerview处理
+            requestDisallowInterceptTouchEvent(true);
+        }
+        return super.onInterceptTouchEvent(ev);
     }
 }

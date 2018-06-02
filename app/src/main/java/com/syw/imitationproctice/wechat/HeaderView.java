@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.syw.imitationproctice.R;
+import com.syw.imitationproctice.utils.InteractionUtils;
 
 import static com.syw.imitationproctice.utils.ScreenUtil.dip2px;
 
@@ -36,9 +37,13 @@ public class HeaderView extends FrameLayout {
     private int mCurrentStep;
     private int mLeftCx;
     private int mRightCx;
-    private boolean mIsContainerShowing = false;
+    private boolean mIsContainerShowing;//标识小组件所在的view是否已经显示完全
     private RecyclerView mRecyclerView;
     private int mContainerHeight;
+    private boolean mIsVibration;//是否震动过标识
+    private boolean mShouldExpend;//标识是否需要展开
+    private float mExpendHeight;//展开的高度
+    private boolean mIsExpended;//是否已经展开
 
     public HeaderView(@NonNull Context context) {
         super(context);
@@ -62,6 +67,7 @@ public class HeaderView extends FrameLayout {
         mMiddlePointMaxSize = dip2px(context, 5);
         mEndPointSize = dip2px(context, 3);
         mStepSize = dip2px(mContext, 30);
+        mExpendHeight = mStepSize * 4;
 
         setBackgroundColor(Color.parseColor("#e5e5e5"));
         View container = inflate(context, R.layout.header_customer, this);
@@ -124,6 +130,8 @@ public class HeaderView extends FrameLayout {
             mRadius = height / mStepSize * mMiddlePointMaxSize;
 
             goneComponentView();
+
+            mShouldExpend = false;
         } else if (height > mStepSize && height <= mStepSize * 2) {
             //中间的开始缩小，并从中间开始分化出两个点
             mCurrentStep = 2;
@@ -139,6 +147,8 @@ public class HeaderView extends FrameLayout {
             mRightCx += dx;
 
             goneComponentView();
+
+            mShouldExpend = false;
         } else if (height > mStepSize * 2 && height <= mStepSize * 3) {
             //小组件开始出现  三个点从上到下渐变消失
             mCurrentStep = 3;
@@ -147,15 +157,32 @@ public class HeaderView extends FrameLayout {
             mPaint.setAlpha((int) (255 * (1 - ratio)));
 
             updateMargin(height);
+
+            vibration();
+
+            //用户松手时，需要展开头部
+            mShouldExpend = true;
         } else {
             mIsContainerShowing = true;
+
             updateMargin(height);
         }
         invalidate();
     }
 
+    /**
+     * 震动效果
+     */
+    private void vibration() {
+        if (!mIsVibration) {
+            InteractionUtils.vibration();
+        }
+        mIsVibration = true;
+    }
+
     private void updateMargin(float height) {
-        float ratio = (height - mStepSize * 2) / (mStepSize * 2);
+        //距离走到mStepSize * 2时开始更新marginTop
+        float ratio = (height - mStepSize * 2) / (mExpendHeight - mStepSize * 2);
         setComponentTopMargin((int) (-mContainerHeight * (1 - ratio)));
     }
 
@@ -171,5 +198,44 @@ public class HeaderView extends FrameLayout {
                 canvas.drawCircle(mRightCx, mCy, mEndPointSize, mPaint);
             }
         }
+    }
+
+    /**
+     * 是否需要展开头部
+     *
+     * @return
+     */
+    public boolean shouldExpend() {
+        return mShouldExpend;
+    }
+
+    /**
+     * 重置头部状态
+     */
+    public void reset() {
+        mIsVibration = false;
+        mShouldExpend = false;
+        mIsExpended = false;
+        goneComponentView();
+    }
+
+    /**
+     * 是否已经展开
+     *
+     * @return
+     */
+    public boolean isExpended() {
+        return mIsExpended;
+    }
+
+    public void setExpended(boolean isExpended) {
+        mIsExpended = isExpended;
+    }
+
+    /**
+     * 获取展开的高度
+     */
+    public float getExpendHeight() {
+        return mExpendHeight;
     }
 }

@@ -1,7 +1,6 @@
 package com.syw.imitationproctice.wechat;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Scroller;
 
+import com.syw.imitationproctice.R;
+import com.syw.imitationproctice.utils.InteractionUtils;
 import com.syw.imitationproctice.utils.ScreenUtil;
 
 /**
@@ -23,6 +24,7 @@ import com.syw.imitationproctice.utils.ScreenUtil;
 
 public class RecyclerViewContainerView extends LinearLayout {
     private static final float PARALLAX_FACTOR = 1.8f;
+    private static final int DEVIATION = 5;//判断展开还是收缩的误差值
 
     private RecyclerView mRecyclerView;
     private float mLastY;
@@ -95,9 +97,20 @@ public class RecyclerViewContainerView extends LinearLayout {
                 }
 
                 LinearLayoutManager layoutManager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
-                if (layoutManager.findFirstVisibleItemPosition() == 0 && dy > 0) {
-                    //在顶端下拉操作
-                    return true;
+                if (layoutManager.findFirstVisibleItemPosition() == 0) {
+//                    if (mHeaderView.isExpended()) {
+//                        //headview已经展开了，事件交给head自己处理
+//                        return super.onInterceptTouchEvent(ev);
+//                    }
+
+                    if (dy > 0) {
+                        //在顶端下拉操作
+                        return true;
+                    }
+
+                    if (mHeaderView.shouldExpend()) {
+                        return true;
+                    }
                 }
 
                 break;
@@ -143,12 +156,34 @@ public class RecyclerViewContainerView extends LinearLayout {
                 break;
             default:
                 if (mHeaderHeight > 0) {
-                    mScroller.startScroll(0, (int) mHeaderHeight, 0, (int) -mHeaderHeight);
-                    invalidate();
+                    if (mHeaderView.shouldExpend()) {
+                        //需要展开，展开到头部完全张开状态
+                        expendHead();
+                    } else {
+                        //不需要展开，则恢复原样
+                        collapseHead();
+                    }
                 }
                 break;
         }
         return super.onTouchEvent(event);
+    }
+
+    /**
+     * 收缩头部
+     */
+    private void collapseHead() {
+        mScroller.startScroll(0, (int) mHeaderHeight, 0, (int) -mHeaderHeight);
+        invalidate();
+    }
+
+    /**
+     * 展开头部expend
+     */
+    private void expendHead() {
+        mScroller.startScroll(0, (int) mHeaderHeight, 0
+                , (int) (mHeaderView.getExpendHeight() - mHeaderHeight));
+        invalidate();
     }
 
     private void setHeaderVisibleHeight(float height) {
@@ -161,10 +196,31 @@ public class RecyclerViewContainerView extends LinearLayout {
         mHeaderView.onHeightChange(height);
     }
 
+    private int mLastCurrY = -1;
+    private boolean mPlaySoundFlag;
+
     @Override
     public void computeScroll() {
         if (mScroller.computeScrollOffset()) {
             setHeaderVisibleHeight(mScroller.getCurrY());
+
+            if (mScroller.getCurrY() == mLastCurrY) {
+                //滑动停止了
+                if (Math.abs(mScroller.getCurrY()) < DEVIATION) {
+                    //收缩完成
+                    mHeaderView.reset();
+                    mPlaySoundFlag = false;
+                } else if (Math.abs(mScroller.getCurrY() - mHeaderView.getExpendHeight()) < DEVIATION) {
+                    //展开完成
+                    mHeaderView.setExpended(true);
+                    if (!mPlaySoundFlag) {
+                        InteractionUtils.playSound(R.raw.app_brand_pull_recent_vew_down_sound);
+                    }
+                    mPlaySoundFlag = true;
+                }
+            }
+
+            mLastCurrY = mScroller.getCurrY();
         }
     }
 }

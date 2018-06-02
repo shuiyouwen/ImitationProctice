@@ -39,7 +39,6 @@ public class HeaderView extends FrameLayout {
     private boolean mIsContainerShowing = false;
     private RecyclerView mRecyclerView;
     private int mContainerHeight;
-    private int mTopMargin;
 
     public HeaderView(@NonNull Context context) {
         super(context);
@@ -89,19 +88,27 @@ public class HeaderView extends FrameLayout {
         ComponentAdapter componentAdapter = new ComponentAdapter(mContext);
         recyclerView.setAdapter(componentAdapter);
 
-        setTopMargin(-mContainerHeight);
+        setComponentTopMargin(-mContainerHeight);
     }
 
-    private void setTopMargin(int margin) {
-        mTopMargin = margin > 0 ? 0 : margin;
+    /**
+     * 设置小组件marginTop的值
+     *
+     * @param margin
+     */
+    private void setComponentTopMargin(int margin) {
+        int topMargin = margin > 0 ? 0 : margin;
 
         MarginLayoutParams layoutParams = (MarginLayoutParams) mRecyclerView.getLayoutParams();
-        layoutParams.topMargin = mTopMargin;
+        layoutParams.topMargin = topMargin;
         mRecyclerView.setLayoutParams(layoutParams);
     }
 
+    /**
+     * 小组件消失
+     */
     private void goneComponentView() {
-        setTopMargin(-mContainerHeight);
+        setComponentTopMargin(-mContainerHeight);
     }
 
 
@@ -149,7 +156,7 @@ public class HeaderView extends FrameLayout {
 
     private void updateMargin(float height) {
         float ratio = (height - mStepSize * 2) / (mStepSize * 2);
-        setTopMargin((int) (-mContainerHeight * (1 - ratio)));
+        setComponentTopMargin((int) (-mContainerHeight * (1 - ratio)));
     }
 
     @Override

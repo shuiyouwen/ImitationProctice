@@ -38,9 +38,9 @@ public class HeaderView extends FrameLayout {
     private int mCurrentStep;
     private int mLeftCx;
     private int mRightCx;
-    private boolean mIsContainerShowing;//标识小组件所在的view是否已经显示完全
+    private boolean mIsShouldDrawPoint;//是否需要绘制3个点
     private RecyclerView mRecyclerView;
-    private int mContainerHeight;
+    private float mContainerHeight;
     private boolean mIsVibration;//是否震动过标识
     private boolean mShouldExpend;//标识是否需要展开
     private float mExpendHeight;//展开的高度
@@ -103,11 +103,11 @@ public class HeaderView extends FrameLayout {
      *
      * @param margin
      */
-    private void setComponentTopMargin(int margin) {
-        int topMargin = margin > 0 ? 0 : margin;
+    private void setComponentTopMargin(float margin) {
+        margin = margin > 0 ? 0 : margin;
 
         MarginLayoutParams layoutParams = (MarginLayoutParams) mRecyclerView.getLayoutParams();
-        layoutParams.topMargin = topMargin;
+        layoutParams.topMargin = (int) margin;
         mRecyclerView.setLayoutParams(layoutParams);
     }
 
@@ -123,7 +123,13 @@ public class HeaderView extends FrameLayout {
         mCx = getMeasuredWidth() / 2;
         mCy = (int) (height / 2);
         mPaint.setAlpha(255);
-        mIsContainerShowing = false;
+        mIsShouldDrawPoint = false;
+
+        if (mIsExpended) {
+            setComponentTopMargin((int) ((1f - height / mExpendHeight) * (-mContainerHeight)));
+            mShouldExpend = height / mExpendHeight >= 0.5f;
+            return;
+        }
 
         if (height <= mStepSize) {
             //中间的点持续放大
@@ -164,7 +170,7 @@ public class HeaderView extends FrameLayout {
             //用户松手时，需要展开头部
             mShouldExpend = true;
         } else {
-            mIsContainerShowing = true;
+            mIsShouldDrawPoint = true;
 
             updateMargin(height);
         }
@@ -191,7 +197,7 @@ public class HeaderView extends FrameLayout {
     public void draw(Canvas canvas) {
         super.draw(canvas);
 
-        if (!mIsContainerShowing) {
+        if (!mIsShouldDrawPoint && !mIsExpended) {
             canvas.drawCircle(mCx, mCy, mRadius, mPaint);
 
             if (mCurrentStep > 1) {

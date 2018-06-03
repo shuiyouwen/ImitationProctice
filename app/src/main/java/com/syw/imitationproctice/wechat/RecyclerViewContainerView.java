@@ -23,10 +23,9 @@ import com.syw.imitationproctice.utils.ScreenUtil;
  * @data: 2018/6/1
  * @description: recyclerView包裹view，实现一些效果
  */
-// TODO: 2018/6/2 1、事件优化    2、加速度优化
 public class RecyclerViewContainerView extends LinearLayout {
-    private static final float PARALLAX_FACTOR = 1.8f;
-    private static final int DEVIATION = 5;//判断展开还是收缩的误差值
+    public static final float PARALLAX_FACTOR = 1.8f;
+    private static final int DEVIATION = 3;//判断展开还是收缩的误差值
     private static final int VELOCITY_FACTOR = 500;//手势加速度判断参数
 
     private RecyclerView mRecyclerView;
@@ -175,7 +174,7 @@ public class RecyclerViewContainerView extends LinearLayout {
                     if (yVelocity > VELOCITY_FACTOR) {
                         //下拉
                         expendHead();
-                    } else if (yVelocity < VELOCITY_FACTOR) {
+                    } else if (yVelocity < -VELOCITY_FACTOR) {
                         //上滑
                         collapseHead();
                     } else {

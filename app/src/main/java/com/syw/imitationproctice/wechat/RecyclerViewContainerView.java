@@ -242,8 +242,9 @@ public class RecyclerViewContainerView extends LinearLayout {
                     mPlaySoundFlag = true;
                 }
             }
-
             mLastCurrY = mScroller.getCurrY();
+
+            invalidate();
         }
     }
 

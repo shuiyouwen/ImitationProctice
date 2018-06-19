@@ -6,4 +6,5 @@
     <item type="id" name="rl_controller" />
     <item type="id" name="rv_music_list" />
     <item type="id" name="fl_header_shrink" />
+    <item type="id" name="iv_shrink_bg" />
 </resources>

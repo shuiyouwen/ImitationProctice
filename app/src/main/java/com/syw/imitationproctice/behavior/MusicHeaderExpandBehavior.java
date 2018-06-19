@@ -9,13 +9,17 @@ import android.view.View;
 
 import com.syw.imitationproctice.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Shui on 2018/6/19.
  */
 public class MusicHeaderExpandBehavior extends CoordinatorLayout.Behavior {
-    private static final float HEADER_PARALLAX = 0.6f;
+    private static final float HEADER_PARALLAX = 0.7f;
     private int mOffSetY;
     private int mMin;
+    private List<OnShrinkProgressListener> mOnShrinkProgressListeners = new ArrayList<>();
 
     public MusicHeaderExpandBehavior(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -44,13 +48,45 @@ public class MusicHeaderExpandBehavior extends CoordinatorLayout.Behavior {
         } else if (mOffSetY + offSet > 0) {
             offSet = -mOffSetY;
         } else {
+            if (dy < 0 && target.canScrollVertically(-1)) {
+                //向下滑动,并且滑动到顶，header消耗掉所有滑动
+                return;
+            }
+
             consumed[1] = dy;
         }
         ViewCompat.offsetTopAndBottom(child, offSet);
         mOffSetY += offSet;
+
+        if (!mOnShrinkProgressListeners.isEmpty()) {
+            for (OnShrinkProgressListener listener : mOnShrinkProgressListeners) {
+                listener.onShrinkProgress((float) mOffSetY / (float) mMin);
+            }
+        }
     }
 
     public int getOffSetY() {
         return mOffSetY;
+    }
+
+    /**
+     * 设置收缩监听器
+     *
+     * @param listener
+     */
+    public void addOnShrinkProgressListener(@NonNull OnShrinkProgressListener listener) {
+        mOnShrinkProgressListeners.add(listener);
+    }
+
+    public void removeOnShrinkProgressListener(@NonNull OnShrinkProgressListener listener) {
+        mOnShrinkProgressListeners.remove(listener);
+    }
+
+    public interface OnShrinkProgressListener {
+        /**
+         *
+         * @param progress
+         */
+        void onShrinkProgress(float progress);
     }
 }

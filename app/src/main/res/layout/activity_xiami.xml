@@ -11,14 +11,15 @@
         android:background="@mipmap/expand_bg"
         app:layout_behavior="com.syw.imitationproctice.behavior.MusicHeaderExpandBehavior" />
 
+    <include layout="@layout/layout_header_expand" />
+
     <ImageView
-        android:id="@+id/iv_shrink_bg"
+        android:id="@id/iv_shrink_bg"
         android:layout_width="match_parent"
         android:layout_height="@dimen/shrink_height"
         android:alpha="0"
-        android:background="@mipmap/shrink_bg" />
-
-    <include layout="@layout/layout_header_expand" />
+        android:background="@mipmap/shrink_bg"
+        app:layout_behavior="com.syw.imitationproctice.behavior.MusicHeaderShrinkBehavior" />
 
     <include layout="@layout/layout_header_shrink" />
 

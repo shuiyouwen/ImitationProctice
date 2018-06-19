@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/iv_expand_bg"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/expand_height"
+        android:background="@mipmap/expand_bg"
+        app:layout_behavior="com.syw.imitationproctice.behavior.MusicHeaderExpandBehavior" />
+
+    <ImageView
+        android:id="@+id/iv_shrink_bg"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/shrink_height"
+        android:alpha="0"
+        android:background="@mipmap/shrink_bg" />
+
+    <include layout="@layout/layout_header_expand" />
+
+    <include layout="@layout/layout_header_shrink" />
+
+    <RelativeLayout
+        android:id="@id/rl_controller"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/controller_height"
+        android:background="@android:color/holo_green_dark"
+        app:layout_behavior="com.syw.imitationproctice.behavior.MusicControllerBehavior">
+
+    </RelativeLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@id/rv_music_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="com.syw.imitationproctice.behavior.MusicListBehavior" />
+
+</android.support.design.widget.CoordinatorLayout>

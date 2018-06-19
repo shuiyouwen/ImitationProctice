@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="statusbarutil_fake_status_bar_view" />
+    <item type="id" name="statusbarutil_translucent_view" />
+    <item type="id" name="cl_header_expand" />
+    <item type="id" name="rl_controller" />
+    <item type="id" name="rv_music_list" />
+    <item type="id" name="fl_header_shrink" />
+</resources>

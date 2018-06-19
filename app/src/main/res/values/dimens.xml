@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="shrink_height">65dp</dimen>
+    <dimen name="expand_height">230dp</dimen>
+    <dimen name="controller_height">60dp</dimen>
+</resources>

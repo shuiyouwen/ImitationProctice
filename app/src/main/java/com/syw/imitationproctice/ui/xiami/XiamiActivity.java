@@ -1,4 +1,4 @@
-package com.syw.imitationproctice.xiami;
+package com.syw.imitationproctice.ui.xiami;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.syw.imitationproctice.MyAdapter;
+import com.syw.imitationproctice.adapter.MyAdapter;
 import com.syw.imitationproctice.R;
 import com.syw.imitationproctice.utils.StatusBarUtil;
 import com.syw.imitationproctice.utils.WidgetUtils;

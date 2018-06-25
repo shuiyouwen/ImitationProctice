@@ -15,15 +15,18 @@
         <activity android:name=".MainActivity">
 
         </activity>
-        <activity android:name=".wechat.WechatHeaderViewActivity">
+        <activity android:name=".ui.wechat.WechatHeaderViewActivity">
 
         </activity>
-        <activity android:name=".xiami.XiamiActivity">
+        <activity android:name=".ui.xiami.XiamiActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".ui.dribbble.themoment.TheMomentActivity" >
+
         </activity>
     </application>
 

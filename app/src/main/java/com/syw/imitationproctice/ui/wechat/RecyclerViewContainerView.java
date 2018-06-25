@@ -1,4 +1,4 @@
-package com.syw.imitationproctice.wechat;
+package com.syw.imitationproctice.ui.wechat;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

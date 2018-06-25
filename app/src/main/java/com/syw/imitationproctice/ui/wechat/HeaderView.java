@@ -1,4 +1,4 @@
-package com.syw.imitationproctice.wechat;
+package com.syw.imitationproctice.ui.wechat;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.syw.imitationproctice.R;
+import com.syw.imitationproctice.adapter.ComponentAdapter;
 import com.syw.imitationproctice.utils.InteractionUtils;
 
 import static com.syw.imitationproctice.utils.ScreenUtil.dip2px;

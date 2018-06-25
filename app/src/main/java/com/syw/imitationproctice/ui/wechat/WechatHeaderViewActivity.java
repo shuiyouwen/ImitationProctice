@@ -1,4 +1,4 @@
-package com.syw.imitationproctice.wechat;
+package com.syw.imitationproctice.ui.wechat;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import com.syw.imitationproctice.MyAdapter;
+import com.syw.imitationproctice.adapter.MyAdapter;
 import com.syw.imitationproctice.R;
 
 import java.util.ArrayList;
